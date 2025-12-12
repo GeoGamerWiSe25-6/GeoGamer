@@ -1,5 +1,6 @@
 import Map from "https://js.arcgis.com/4.34/@arcgis/core/Map.js";
 import MapView from "https://js.arcgis.com/4.34/@arcgis/core/views/MapView.js";
+import OpenStreetMapLayer from "https://js.arcgis.com/4.34/@arcgis/core/layers/OpenStreetMapLayer.js"
 
 const map = new Map({
     basemap:"satellite"
@@ -42,3 +43,13 @@ async function loadLocations(){
 }
 
 loadLocations();
+
+
+const osmLayer = new OpenStreetMapLayer({
+    id: "osmLayer"
+});
+map.add(osmLayer);
+
+document.getElementById('osmBtn').addEventListener('click', () => {
+    map.findLayerById("osmLayer").visible = !map.findLayerById("osmLayer").visible;
+});
