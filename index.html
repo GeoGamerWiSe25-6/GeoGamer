@@ -11,8 +11,25 @@
 <h1>GeoGamer App</h1>
 <div id="map"></div>
 <script type="module" src="app.js"></script>
-<div style="padding-top: 200px">
-    <button id="osmBtn">OSM</button>
+<div id="mapview-control" class="map-ui">
+    <div class="mapview-control-title">Kartenansicht</div>
+
+    <div> <br>
+    <button data-mapview="satellite" class="active">
+        Satellit
+    </button>
+
+    <button data-mapview="osm" >
+        OSM
+    </button>
+
+    <button data-mapview="topo-vector">
+        Topographisch
+    </button>
+    </div>
+</div>
+<div id="attribution" style="text-align: right">
+    © OpenStreetMap contributors
 </div>
 </body>
 </html>

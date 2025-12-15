@@ -1,6 +1,8 @@
 import Map from "https://js.arcgis.com/4.34/@arcgis/core/Map.js";
 import MapView from "https://js.arcgis.com/4.34/@arcgis/core/views/MapView.js";
 import OpenStreetMapLayer from "https://js.arcgis.com/4.34/@arcgis/core/layers/OpenStreetMapLayer.js"
+import Basemap from "https://js.arcgis.com/4.34/@arcgis/core/Basemap.js";
+
 
 const map = new Map({
     basemap:"satellite"
@@ -45,11 +47,16 @@ async function loadLocations(){
 loadLocations();
 
 
-const osmLayer = new OpenStreetMapLayer({
-    id: "osmLayer"
-});
-map.add(osmLayer);
+const buttons = document.querySelectorAll("#mapview-control button");
 
-document.getElementById('osmBtn').addEventListener('click', () => {
-    map.findLayerById("osmLayer").visible = !map.findLayerById("osmLayer").visible;
-});
+buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const mapview = btn.dataset.mapview;
+        map.basemap = mapview;
+
+
+    })
+})

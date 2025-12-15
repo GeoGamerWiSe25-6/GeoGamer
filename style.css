@@ -7,3 +7,46 @@ body {
     width:100vw;
     height: 80vw;
 }
+
+.map-ui{
+    position: absolute;
+    top: 150px;
+    left: 15px;
+    z-index: 99;
+    background: rgba(30,30,30,0.85);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 10px;
+    width: 160px;
+    color: white;
+}
+
+.map-ui.mapview-control-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    opacity: 0.85;
+}
+
+.map-ui button{
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 14px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.map-ui button:hover{
+    background: rgba(255,255,255,0.25);
+    font-weight: 600;
+}
+
+.map-ui button:last-child{
+    margin-bottom: 0;
+}
