@@ -1,19 +1,11 @@
-import Map from "https://js.arcgis.com/4.34/@arcgis/core/Map.js";
-import MapView from "https://js.arcgis.com/4.34/@arcgis/core/views/MapView.js";
-import OpenStreetMapLayer from "https://js.arcgis.com/4.34/@arcgis/core/layers/OpenStreetMapLayer.js"
-import Basemap from "https://js.arcgis.com/4.34/@arcgis/core/Basemap.js";
+const map = L.map("map").setView([51.575, 8.79], 6);
 
-
-const map = new Map({
-    basemap:"satellite"
-});
-
-const view = new MapView({
-    container:"map",
-    map: map,
-    center: [8.79, 53.075],
-    zoom: 20
-});
+L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        attribution: "© OpenStreetMap contributors"
+    }
+).addTo(map);
 
 function getRandomLocationGermany(){
     const minLon = 5.9;
@@ -28,7 +20,7 @@ function getRandomLocationGermany(){
 }
 
 async function loadLocations(){
-    await view.when();
+    //await view.when();
     const response = await fetch("data/export_german_cities_towns.geojson");
     const data = await response.json();
     const features = data.features;
@@ -37,11 +29,8 @@ async function loadLocations(){
     const lat = randomFeature.geometry.coordinates[1];
     const lon = randomFeature.geometry.coordinates[0];
     console.log("Zufälliger Ort: ", randomFeature.properties.name);
+    // TODO jump to location
 
-    view.goTo({
-        center : [lon, lat],
-        zoom: 16
-    });
 }
 
 loadLocations();
@@ -55,7 +44,7 @@ buttons.forEach(btn => {
         btn.classList.add("active");
 
         const mapview = btn.dataset.mapview;
-        map.basemap = mapview;
+        //TODO change view
 
 
     })
