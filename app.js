@@ -1,11 +1,30 @@
 const map = L.map("map").setView([51.575, 8.79], 6);
 
-L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-        attribution: "© OpenStreetMap contributors"
-    }
-).addTo(map);
+const MAPTILER_KEY = "" // kann später über BE abgefragt werden
+
+const baseLayers = {
+    osm: L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            attribution: "© OpenStreetMap contributors"
+        }
+    ),
+
+    topo: L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+        { attribution: "© OpenStreetMap © CARTO" }
+    ),
+
+    satellite: L.tileLayer(
+        `https://api.maptiler.com/tiles/satellite/{z}/{x}/{y}.jpg?key=${MAPTILER_KEY}`,
+        {
+            attribution: "© MapTiler © OpenStreetMap contributors"
+        }
+    )
+};
+
+let currentLayer = baseLayers.topo;
+currentLayer.addTo(map);
 
 function getRandomLocationGermany(){
     const minLon = 5.9;
@@ -20,7 +39,6 @@ function getRandomLocationGermany(){
 }
 
 async function loadLocations(){
-    //await view.when();
     const response = await fetch("data/export_german_cities_towns.geojson");
     const data = await response.json();
     const features = data.features;
@@ -29,7 +47,7 @@ async function loadLocations(){
     const lat = randomFeature.geometry.coordinates[1];
     const lon = randomFeature.geometry.coordinates[0];
     console.log("Zufälliger Ort: ", randomFeature.properties.name);
-    // TODO jump to location
+    map.setView([lat, lon], 16);
 
 }
 
@@ -44,8 +62,11 @@ buttons.forEach(btn => {
         btn.classList.add("active");
 
         const mapview = btn.dataset.mapview;
-        //TODO change view
+        map.removeLayer(currentLayer);
+        currentLayer = baseLayers[mapview];
+        currentLayer.addTo(map);
 
 
     })
+
 })
