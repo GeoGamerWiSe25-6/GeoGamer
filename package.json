@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/GeoGamerWiSe25-6/GeoGamerBackend#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.2.1",
-    "haversine-distance": "^1.2.4"
+    "haversine-distance": "^1.2.4",
+    "pg": "^8.17.2"
   }
 }
