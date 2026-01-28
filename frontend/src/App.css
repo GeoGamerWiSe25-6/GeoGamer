@@ -1,42 +1,228 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Error Banner */
+.error-banner {
+  background: #fee;
+  color: #c00;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #c00;
+  animation: slideDown 0.3s ease-out;
+  z-index: 1000;
 }
 
-@keyframes logo-spin {
+@keyframes slideDown {
   from {
-    transform: rotate(0deg);
+    transform: translateY(-100%);
   }
   to {
-    transform: rotate(360deg);
+    transform: translateY(0);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+.error-banner button {
+  background: transparent;
+  border: none;
+  color: #c00;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.error-banner button:hover {
+  opacity: 0.7;
+}
+
+/* Game Layout */
+.game-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.map-panel {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ddd;
+}
+
+.map-panel:last-child {
+  border-right: none;
+}
+
+/* Panel Header */
+.panel-header {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.header-controls {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.coordinates {
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  color: #495057;
+  min-width: 180px;
+}
+
+/* Buttons */
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #218838;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c82333;
+}
+
+/* Result Panel */
+.result-panel {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border-bottom: 1px solid #b3d7ff;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.result-item {
+  font-size: 14px;
+}
+
+.result-item.score {
+  grid-column: 1 / -1;
+  font-size: 18px;
+  text-align: center;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #007bff;
+  font-weight: 600;
+}
+
+/* Distance Class Badges */
+.class-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.class-perfect {
+  background: #00ff00;
+  color: #006400;
+}
+.class-excellent {
+  background: #7fff00;
+  color: #228b22;
+}
+.class-very_good {
+  background: #ffff00;
+  color: #8b8b00;
+}
+.class-good {
+  background: #ffa500;
+  color: #8b4500;
+}
+.class-mediocre {
+  background: #ff6600;
+  color: #fff;
+}
+.class-poor {
+  background: #ff0000;
+  color: #fff;
+}
+
+/* Map Wrapper */
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-wrapper.with-result {
+  height: calc(100vh - 200px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .game-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 1fr;
   }
-}
 
-.card {
-  padding: 2em;
-}
+  .map-panel {
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
 
-.read-the-docs {
-  color: #888;
+  .result-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .coordinates {
+    min-width: auto;
+  }
 }
