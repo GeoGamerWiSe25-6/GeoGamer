@@ -1,4 +1,4 @@
-import {pool} from "../data/db.js"
+import {pool} from "../config/db.js"
 import {scoreMap} from "../utils/geo.utils.js"
 
 export async function startRound(){
