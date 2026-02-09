@@ -20,7 +20,7 @@ function FlyTo({ view }: FlyToProps) {
     if (!view) return;
     map.setView(view.center, view.zoom);
   }, [view, map]);
-
+  console.log("ziel: ", view);
   return null;
 }
 

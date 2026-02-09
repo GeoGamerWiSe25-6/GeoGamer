@@ -136,7 +136,7 @@ export default function App() {
           )}
 
           <div className={`map-wrapper ${result ? "with-result" : ""}`}>
-            <GuessMap guess={guess} onChange={setGuess} result={result} />
+            <GuessMap guess={guess} onChange={setGuess} result={result} roundId={roundId}/>
           </div>
         </div>
       </div>
