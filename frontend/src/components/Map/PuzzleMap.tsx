@@ -40,7 +40,18 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
       doubleClickZoom={false}
     >
       <LayersControl position="topleft">
-        <BaseLayer checked name="Topographisch">
+        {/*In Endversion Standard (Api key Aufrufe sparen) Nur anzeigen wenn API-Key vorhanden */}
+        {maptilerKey && (
+            <BaseLayer name="Satellite">
+              <TileLayer
+                  url={`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${maptilerKey}`}
+                  attribution="© MapTiler © OpenStreetMap contributors"
+                  maxZoom={20}
+              />
+            </BaseLayer>
+        )}
+
+        <BaseLayer name="Topographisch">
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
             attribution="© OpenStreetMap © CARTO"
@@ -48,7 +59,7 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
           />
         </BaseLayer>
 
-        <BaseLayer name="OSM">
+        <BaseLayer checked name="OSM">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="© OpenStreetMap contributors"
@@ -56,16 +67,6 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
           />
         </BaseLayer>
 
-        {/*Nur anzeigen wenn API-Key vorhanden */}
-        {maptilerKey && (
-          <BaseLayer name="Satellite">
-            <TileLayer
-              url={`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${maptilerKey}`}
-              attribution="© MapTiler © OpenStreetMap contributors"
-              maxZoom={20}
-            />
-          </BaseLayer>
-        )}
       </LayersControl>
 
       <FlyTo view={view} />

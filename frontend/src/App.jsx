@@ -121,7 +121,7 @@ export default function App() {
                 <strong>📍 Ort:</strong> {result.community}
               </div>
               <div className="result-item">
-                <strong>📏 Distanz:</strong> {result.distanceKm} km
+                <strong>📏 Distanz:</strong> {result.distanceClassName}
               </div>
               <div className="result-item">
                 <strong>🎯 Klasse:</strong>{" "}
