@@ -61,7 +61,7 @@
           </ogc:Filter>
           <PolygonSymbolizer>
             <Fill>
-              <CssParameter name="fill">#ffffbf</CssParameter>
+              <CssParameter name="fill">#fdae61</CssParameter>
               <CssParameter name="fill-opacity">0.6</CssParameter>
             </Fill>
             <Stroke>
@@ -81,26 +81,6 @@
           </ogc:Filter>
           <PolygonSymbolizer>
             <Fill>
-              <CssParameter name="fill">#fdae61</CssParameter>
-              <CssParameter name="fill-opacity">0.6</CssParameter>
-            </Fill>
-            <Stroke>
-              <CssParameter name="stroke">#333333</CssParameter>
-              <CssParameter name="stroke-width">0.6</CssParameter>
-            </Stroke>
-          </PolygonSymbolizer>
-        </Rule>
-        <!-- Rule Distance Class 4 -->
-        <Rule>
-          <Title>over 50km</Title>
-          <ogc:Filter>
-            <ogc:PropertyIsEqualTo>
-              <ogc:PropertyName>distance_class</ogc:PropertyName>
-              <ogc:Literal>4</ogc:Literal>
-            </ogc:PropertyIsEqualTo>
-          </ogc:Filter>
-          <PolygonSymbolizer>
-            <Fill>
               <CssParameter name="fill">#d7191c</CssParameter>
               <CssParameter name="fill-opacity">0.6</CssParameter>
             </Fill>
@@ -110,6 +90,21 @@
             </Stroke>
           </PolygonSymbolizer>
         </Rule>
+
+        <!-- Default -->
+        <Rule>
+          <ElseFilter/>
+          <PolygonSymbolizer>
+            <Fill>
+              <CssParameter name="fill">#000000</CssParameter>
+              <CssParameter name="fill-opacity">0</CssParameter>
+            </Fill>
+            <Stroke>
+              <CssParameter name="stroke-opacity">0</CssParameter>
+            </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+
       </FeatureTypeStyle>
     </UserStyle>
   </NamedLayer>
