@@ -2,11 +2,12 @@
   "name": "geogamerbackend",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   "homepage": "https://github.com/GeoGamerWiSe25-6/GeoGamerBackend#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "haversine-distance": "^1.2.4",
     "pg": "^8.17.2"
