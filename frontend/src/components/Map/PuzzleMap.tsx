@@ -42,7 +42,7 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
       <LayersControl position="topleft">
         {/*In Endversion Standard (Api key Aufrufe sparen) Nur anzeigen wenn API-Key vorhanden */}
         {maptilerKey && (
-            <BaseLayer name="Satellite">
+            <BaseLayer checked name="Satellite">
               <TileLayer
                   url={`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${maptilerKey}`}
                   attribution="© MapTiler © OpenStreetMap contributors"
@@ -59,7 +59,7 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
           />
         </BaseLayer>
 
-        <BaseLayer checked name="OSM">
+        <BaseLayer name="OSM">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="© OpenStreetMap contributors"
