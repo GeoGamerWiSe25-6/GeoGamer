@@ -94,8 +94,8 @@ function DistanceLayerController({
     if (layerRef.current) {
       map.removeLayer(layerRef.current);
     }
-    /*
-    const layer = L.tileLayer.wms("http://localhost:8080/geoserver/geogamer/wms", {
+    console.log("round id = ", roundId);
+    const wmslayer = L.tileLayer.wms("http://localhost:8080/geoserver/geogamer/wms", {
       layers: "geogamer:distance_classes",
       format: "image/png",
       transparent: true,
@@ -103,10 +103,10 @@ function DistanceLayerController({
       CQL_FILTER: `round_id=${roundId}`,
     } as any);
 
-    layer.addTo(map);
-    layerRef.current = layer;
+    wmslayer.addTo(map);
+    layerRef.current = wmslayer;
 
-     */
+
 
     return () => {
       if (layerRef.current) {
