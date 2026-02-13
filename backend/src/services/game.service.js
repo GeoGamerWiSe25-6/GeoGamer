@@ -71,6 +71,16 @@ export async function guessCommunity(roundId, guessLat, guessLon){
 
     const guessedCommunityId = guessedCommunityResult.rows[0].id;
 
+
+    let actualPoint = await pool.query(`
+        SELECT ST_AsGeoJSON(ST_Transform(point, 4326)) AS point
+        FROM (SELECT ST_SetSRID(target_point, 25832) AS point FROM rounds WHERE id=$1) sub
+    `, [roundId]);
+
+    const actualLocation = JSON.parse(actualPoint.rows[0].point);
+    const [lon, lat] = actualLocation.coordinates;
+
+
     const result = await pool.query(`
         SELECT * FROM distance_classes WHERE round_id=$1 AND community_id=$2
     `, [roundId, guessedCommunityId]);
@@ -79,6 +89,7 @@ export async function guessCommunity(roundId, guessLat, guessLon){
     const distanceClassName = distanceMap[distanceClass];
 
     return {
+                actualLocation: {lat: lat, lon: lon},
                 distanceClass,
                 score: scoreMap[distanceClass],
                 distanceClassName,
