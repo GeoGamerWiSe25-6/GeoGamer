@@ -15,7 +15,7 @@
     <entry key="preparedStatements">false</entry>
     <entry key="database">geogamer</entry>
     <entry key="reWriteBatchedInserts">false</entry>
-    <entry key="host">localhost</entry>
+    <entry key="host">database</entry>
     <entry key="Loose bbox">true</entry>
     <entry key="SSL mode">DISABLE</entry>
     <entry key="Estimated extends">true</entry>
