@@ -1,0 +1,17 @@
+<layer>
+  <name>distance_classes</name>
+  <id>LayerInfoImpl--4b6bb9a6:19c619897f8:-7ffc</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--4b6bb9a6:19c619897f8:-7ffb</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--4b6bb9a6:19c619897f8:-7ffd</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2026-02-15 14:01:46.372 UTC</dateCreated>
+  <dateModified>2026-02-15 14:07:06.776 UTC</dateModified>
+</layer>
