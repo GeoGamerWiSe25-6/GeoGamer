@@ -64,6 +64,23 @@ services:
     command: npm run start
 
   # ===========================================
+  # GeoServer
+  # ===========================================
+  geoserver:
+    image: docker.osgeo.org/geoserver:2.28.0
+    container_name: geogamer-geoserver
+    ports:
+      - "8080:8080"
+    environment:
+      GEOSERVER_ADMIN_USER: admin
+      GEOSERVER_ADMIN_PASSWORD: geoserver
+    volumes:
+      - ./geoserver/data_dir:/opt/geoserver_data
+    networks:
+      - geogamer-network
+
+
+  # ===========================================
   # Frontend (React + Vite)
   # ===========================================
   frontend:
