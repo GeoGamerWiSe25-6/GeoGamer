@@ -18,5 +18,5 @@ Thumbs.db
 postgres_data/
 pgadmin_data/
 
-# users.xml will be auto-created and contains sensitive information
-./geoserver/data_dir/security/usergroup/default/users.xml
+geoserver/data_dir/security/**
+geoserver/data_dir/workspaces/geogamer/geogamer/datastore.xml
