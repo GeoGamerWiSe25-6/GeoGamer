@@ -2,6 +2,8 @@ import { useEffect, useState, useCallback } from "react";
 import { PuzzleMap } from "./components/Map/PuzzleMap";
 import { GuessMap } from "./components/Map/GuessMap";
 import { startRound, submitGuess } from "./services/gameApi";
+import { ScoreDisplay } from "./components/Game/ScoreDisplay";
+import { useScore } from "./context/ScoreContext";
 import "./App.css";
 
 export default function App() {
@@ -11,12 +13,15 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { resetScore } = useScore();
 
   const loadNewRound = useCallback(async () => {
     setIsLoading(true);
     setGuess(null);
     setResult(null);
     setError(null);
+
+    resetScore();
 
     try {
       const data = await startRound();
@@ -28,7 +33,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [resetScore]);
 
   useEffect(() => {
     loadNewRound();
@@ -57,7 +62,6 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {/* Error Banner */}
       {error && (
         <div className="error-banner">
           ⚠️ {error}
@@ -70,6 +74,7 @@ export default function App() {
         <div className="map-panel">
           <header className="panel-header">
             <h3>🗺️ Puzzle Map</h3>
+            <ScoreDisplay />
             <button
               className="btn-primary"
               onClick={loadNewRound}
@@ -136,7 +141,12 @@ export default function App() {
           )}
 
           <div className={`map-wrapper ${result ? "with-result" : ""}`}>
-            <GuessMap guess={guess} onChange={setGuess} result={result} roundId={roundId}/>
+            <GuessMap
+              guess={guess}
+              onChange={setGuess}
+              result={result}
+              roundId={roundId}
+            />
           </div>
         </div>
       </div>
