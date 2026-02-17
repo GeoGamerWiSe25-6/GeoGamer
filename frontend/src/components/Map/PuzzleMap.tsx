@@ -18,9 +18,15 @@ function FlyTo({ view }: FlyToProps) {
 
   useEffect(() => {
     if (!view) return;
+    console.log("🎯 GOAL POSITION (Puzzle):", {
+      lat: view.center[0],
+      lng: view.center[1],
+      zoom: view.zoom,
+    });
+
     map.setView(view.center, view.zoom);
   }, [view, map]);
-  console.log("ziel: ", view);
+
   return null;
 }
 
@@ -42,13 +48,13 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
       <LayersControl position="topleft">
         {/*In Endversion Standard (Api key Aufrufe sparen) Nur anzeigen wenn API-Key vorhanden */}
         {maptilerKey && (
-            <BaseLayer checked name="Satellite">
-              <TileLayer
-                  url={`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${maptilerKey}`}
-                  attribution="© MapTiler © OpenStreetMap contributors"
-                  maxZoom={20}
-              />
-            </BaseLayer>
+          <BaseLayer checked name="Satellite">
+            <TileLayer
+              url={`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${maptilerKey}`}
+              attribution="© MapTiler © OpenStreetMap contributors"
+              maxZoom={20}
+            />
+          </BaseLayer>
         )}
 
         <BaseLayer name="Topographisch">
@@ -66,7 +72,6 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
             maxZoom={19}
           />
         </BaseLayer>
-
       </LayersControl>
 
       <FlyTo view={view} />

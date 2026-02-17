@@ -1,0 +1,73 @@
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #410a59 0%, #a62684 100%);
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  height: 40px;
+}
+
+.score-display:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.score-icon {
+  font-size: 24px;
+  animation: pulse 2s ease-in-out infinite;
+  line-height: 1;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.score-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.score-label {
+  font-size: 10px;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.score-value {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Animation für Score-Änderung */
+@keyframes scoreChange {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+    color: #ffd700;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.score-value.changing {
+  animation: scoreChange 0.5s ease;
+}

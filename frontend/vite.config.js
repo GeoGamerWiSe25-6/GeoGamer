@@ -15,4 +15,10 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    force: true,
+    esbuildOptions: {
+      target: "esnext",
+    },
+  },
 });
