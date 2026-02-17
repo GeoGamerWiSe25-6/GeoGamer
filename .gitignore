@@ -17,3 +17,6 @@ Thumbs.db
 
 postgres_data/
 pgadmin_data/
+
+geoserver/data_dir/security/**
+
