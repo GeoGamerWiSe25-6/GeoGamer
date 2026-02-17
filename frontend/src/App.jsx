@@ -13,7 +13,7 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { resetScore } = useScore();
+  const { resetScore, resetLayers } = useScore();
 
   const loadNewRound = useCallback(async () => {
     setIsLoading(true);
@@ -22,6 +22,7 @@ export default function App() {
     setError(null);
 
     resetScore();
+    resetLayers();
 
     try {
       const data = await startRound();
@@ -33,7 +34,7 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [resetScore]);
+  }, [resetScore, resetLayers]);
 
   useEffect(() => {
     loadNewRound();
