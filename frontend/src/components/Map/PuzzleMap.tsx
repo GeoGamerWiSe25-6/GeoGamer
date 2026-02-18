@@ -1,10 +1,21 @@
 import { useEffect } from "react";
-import { MapContainer, TileLayer, LayersControl, useMap } from "react-leaflet";
+import {MapContainer, TileLayer, LayersControl, useMap, Marker} from "react-leaflet";
 import { useScore } from "../../context/ScoreContext";
 
 import "./PuzzleMap.css";
+import L from "leaflet";
 
 const { BaseLayer } = LayersControl;
+
+const actualIcon = new L.Icon({
+  iconRetinaUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+  iconUrl:
+      "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
 
 interface MapView {
   center: [number, number];
@@ -95,7 +106,12 @@ export function PuzzleMap({ view }: PuzzleMapProps) {
           </BaseLayer>
         )}
       </LayersControl>
-
+      {view?.center[0] && view?.center[1] && (
+          <Marker
+              position={[view?.center[0], view?.center[1]]}
+              icon={actualIcon}
+          />
+      )}
       <FlyTo view={view} />
     </MapContainer>
   );
