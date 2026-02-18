@@ -30,7 +30,7 @@ export default function App() {
       setView(data.view);
     } catch (e) {
       console.error("Failed to start round:", e);
-      setError(e.message);
+      setError("Fehler beim Laden der Runde. Bitte erneut versuchen.");
     } finally {
       setIsLoading(false);
     }
