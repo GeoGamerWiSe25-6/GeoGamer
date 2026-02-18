@@ -30,7 +30,7 @@ export default function App() {
       setView(data.view);
     } catch (e) {
       console.error("Failed to start round:", e);
-      setError("Fehler beim Laden der Runde. Bitte erneut versuchen.");
+      setError(e.message);
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +55,7 @@ export default function App() {
       setResult(data);
     } catch (e) {
       console.error("Failed to submit guess:", e);
-      setError("Fehler beim Absenden. Bitte erneut versuchen.");
+      setError(e.message);
     } finally {
       setIsLoading(false);
     }

@@ -66,7 +66,7 @@ export async function guessCommunity(roundId, guessLat, guessLon){
     `, [guessLon, guessLat]);
 
     if(guessedCommunityResult.rows.length===0){
-        throw new Error("Guess outside all communities");
+        throw new Error("Eingegebene Koordinaten müssen sich innerhalb Deutschlands befinden.");
     }
 
     const guessedCommunityId = guessedCommunityResult.rows[0].id;
