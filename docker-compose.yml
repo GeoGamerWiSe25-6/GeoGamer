@@ -69,7 +69,8 @@ services:
   # GeoServer
   # ===========================================
   geoserver:
-    image: docker.osgeo.org/geoserver:2.28.0
+    build:
+      context: ./geoserver
     container_name: geogamer-geoserver
     ports:
       - "8080:8080"
@@ -83,7 +84,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./geoserver/data_dir:/opt/geoserver_data
-      - ./geoserver/init.sh:/opt/init.sh
     entrypoint: [ "/bin/bash", "/opt/init.sh" ]
     depends_on:
       database:
