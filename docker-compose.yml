@@ -34,6 +34,8 @@ services:
   # Backend (Node.js + Express)
   # ===========================================
   backend:
+    env_file:
+      - .env
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -74,11 +76,20 @@ services:
     environment:
       GEOSERVER_ADMIN_USER: admin
       GEOSERVER_ADMIN_PASSWORD: geoserver
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
     volumes:
       - ./geoserver/data_dir:/opt/geoserver_data
+      - ./geoserver/init.sh:/opt/init.sh
+    entrypoint: [ "/bin/bash", "/opt/init.sh" ]
+    depends_on:
+      database:
+        condition: service_healthy
     networks:
       - geogamer-network
-
 
   # ===========================================
   # Frontend (React + Vite)
@@ -90,6 +101,12 @@ services:
     container_name: geogamer-frontend
     restart: unless-stopped
     environment:
+      JAVA_OPTS: >
+        -DDB_HOST=${DB_HOST}
+        -DDB_PORT=${DB_PORT}
+        -DDB_NAME=${DB_NAME}
+        -DDB_USER=${DB_USER}
+        -DDB_PASSWORD=${DB_PASSWORD}
       VITE_API_BASE: ${VITE_API_BASE}
       VITE_MAPTILER_KEY: ${VITE_MAPTILER_KEY}
     ports:
