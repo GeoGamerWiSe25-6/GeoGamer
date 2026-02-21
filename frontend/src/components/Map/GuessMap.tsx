@@ -166,7 +166,7 @@ export function GuessMap({
           }
         />
       )}
-      // Marker:
+
       {result && (
         <Marker
           position={[result.actualLocation.lat, result.actualLocation.lon]}

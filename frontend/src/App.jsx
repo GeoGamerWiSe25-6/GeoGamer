@@ -8,12 +8,18 @@ import "./App.css";
 
 export default function App() {
   const [roundId, setRoundId] = useState(null);
+
   const [view, setView] = useState(null);
+
   const [guess, setGuess] = useState(null);
+
   const [result, setResult] = useState(null);
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [error, setError] = useState(null);
-  const { resetScore, resetLayers } = useScore();
+
+  const { resetScore, resetLayers, addPoints } = useScore();
 
   const loadNewRound = useCallback(async () => {
     setIsLoading(true);
@@ -41,7 +47,10 @@ export default function App() {
   }, [loadNewRound]);
 
   async function confirmGuess() {
-    if (!roundId || !guess) return;
+    if (!roundId || !guess) {
+      console.warn("⚠️ Cannot confirm: missing roundId or guess");
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -52,7 +61,10 @@ export default function App() {
         guessLat: guess.lat,
         guessLon: guess.lon,
       });
+      console.log("✅ Result:", data);
+
       setResult(data);
+      addPoints(data.score);
     } catch (e) {
       console.error("Failed to submit guess:", e);
       setError(e.message);
@@ -86,7 +98,7 @@ export default function App() {
           </header>
 
           <div className="map-wrapper">
-            <PuzzleMap view={view} />
+            <PuzzleMap view={view} roundReset={roundId} />
           </div>
         </div>
 
