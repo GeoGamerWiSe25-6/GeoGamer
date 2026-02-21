@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {
   MapContainer,
   TileLayer,
@@ -102,16 +102,6 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
     "satellite",
   );
 
-  useEffect(() => {
-    setActiveLayer("satellite");
-  }, [roundReset]);
-
-  useEffect(() => {
-    if (!unlockedLayers.topo && !unlockedLayers.osm) {
-      setActiveLayer("satellite");
-    }
-  }, [unlockedLayers.topo, unlockedLayers.osm]);
-
   const handleUnlockClick = (layer: "topo" | "osm") => {
     if (layer === "osm" && !unlockedLayers.topo) {
       alert("⚠️ Du musst zuerst die Topographie-Karte freischalten!");
@@ -133,52 +123,10 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
     }
   };
 
-  function ForceSatelliteOnStart({
-                                   onForceSatellite,
-                                 }: {
-    onForceSatellite: () => void;
-  }) {
-    const map = useMap();
-    const ranOnceRef = useRef(false);
-
-    useEffect(() => {
-      if (ranOnceRef.current) return;
-      ranOnceRef.current = true;
-
-      // Alle bekannten Base-Layer entfernen (Topo + OSM)
-      map.eachLayer((layer: any) => {
-        if (!(layer instanceof L.TileLayer)) return;
-
-        const attr = layer.options.attribution || "";
-
-        const isTopo = attr.includes("BKG");
-        const isOSMOnly =
-            attr.includes("OpenStreetMap contributors") && !attr.includes("MapTiler");
-
-        if (isTopo || isOSMOnly) {
-          map.removeLayer(layer);
-        }
-      });
-
-      // Satellite-Layer sicherstellen
-      map.eachLayer((layer: any) => {
-        if (!(layer instanceof L.TileLayer)) return;
-
-        const attr = layer.options.attribution || "";
-        const isSatellite = attr.includes("MapTiler");
-
-        if (isSatellite && !map.hasLayer(layer)) {
-          map.addLayer(layer);
-        }
-      });
-
-      // React-State nachziehen
-      onForceSatellite();
-    }, [map, onForceSatellite]);
-
-    return null;
-  }
-
+  useEffect(() => {
+    // Bei jeder neuen Runde: wieder Satellite als aktiven Layer
+    setActiveLayer("satellite");
+  }, [roundReset]);
 
 
   return (
@@ -227,7 +175,6 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
               </BaseLayer>
             )}
           </LayersControl>
-          <ForceSatelliteOnStart onForceSatellite={() => setActiveLayer("satellite")} />
           <FlyTo view={view} />
           <LayerSwitcher activeLayer={activeLayer} />
           {view?.center[0] && view?.center[1] && (
