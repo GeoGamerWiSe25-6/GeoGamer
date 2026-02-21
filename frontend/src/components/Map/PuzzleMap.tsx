@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import {
   MapContainer,
-  TileLayer,
   LayersControl,
+  Marker,
+  TileLayer,
   useMap,
   useMapEvents,
-  Marker,
 } from "react-leaflet";
 import { useScore } from "../../context/ScoreContext";
 import { UnlockDialog } from "../Game/UnlockDialog";
@@ -56,25 +56,14 @@ function LayerSwitcher({
   useEffect(() => {
     console.log("🔄 Switching to layer:", activeLayer);
     map.eachLayer((layer) => {
-      if (
-        (layer as any).options?.attribution?.includes("MapTiler") &&
-        activeLayer !== "satellite"
-      ) {
-        map.removeLayer(layer);
-      }
-      if (
-        (layer as any).options?.attribution?.includes("BKG") &&
-        activeLayer !== "topo"
-      ) {
-        map.removeLayer(layer);
-      }
-      if (
-        (layer as any).options?.attribution?.includes(
-          "OpenStreetMap contributors",
-        ) &&
-        activeLayer !== "osm"
-      ) {
-        map.removeLayer(layer);
+      const attr = (layer as any).options?.attribution || "";
+
+      if (attr.includes("MapTiler")) {
+        if (activeLayer !== "satellite") map.removeLayer(layer);
+      } else if (attr.includes("BKG")) {
+        if (activeLayer !== "topo") map.removeLayer(layer);
+      } else if (attr.includes("OpenStreetMap contributors")) {
+        if (activeLayer !== "osm") map.removeLayer(layer);
       }
     });
   }, [map, activeLayer]);
@@ -144,6 +133,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
 
   const [showPenaltyToast, setShowPenaltyToast] = useState(false);
 
+  // Bei jeder neuen Runde: wieder Satellite als aktiven Layer
   useEffect(() => {
     setActiveLayer("satellite");
   }, [roundReset]);
@@ -184,7 +174,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
     <>
       <div className="puzzle-map-container">
         <MapContainer
-          key={`map-${activeLayer}-${roundReset}`}
+          key={`map-${roundReset}`}
           center={[51.1657, 10.4515]}
           zoom={6}
           style={{ height: "100%", width: "100%" }}
@@ -204,7 +194,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
               />
             </BaseLayer>
 
-            {/* Topo, Nur wenn freigeschaltet */}
+            {/* Topo - Nur wenn freigeschaltet */}
             {unlockedLayers.topo && (
               <BaseLayer checked={activeLayer === "topo"} name="🗻 Topographie">
                 <TileLayer
@@ -215,7 +205,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
               </BaseLayer>
             )}
 
-            {/* OSM, Nur wenn freigeschaltet */}
+            {/* OSM - Nur wenn freigeschaltet */}
             {unlockedLayers.osm && (
               <BaseLayer checked={activeLayer === "osm"} name="🗺️ OSM">
                 <TileLayer
