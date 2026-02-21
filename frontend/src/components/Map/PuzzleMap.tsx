@@ -1,5 +1,5 @@
-import { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, LayersControl, useMap } from "react-leaflet";
+import { useEffect, useState } from "react";
+import { MapContainer, TileLayer, LayersControl, useMap, Marker } from "react-leaflet";
 import { useScore } from "../../context/ScoreContext";
 import { UnlockDialog } from "../Game/UnlockDialog";
 import { UNLOCK_COSTS } from "../../constants/config";
@@ -48,7 +48,7 @@ function LayerSwitcher({
 
   useEffect(() => {
     // Leaflet's Layer Control triggern
-    const layersControl = (map as any)._layers;
+    //const layersControl = (map as any)._layers;
 
     console.log("🔄 Switching to layer:", activeLayer);
 
@@ -175,9 +175,13 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
               </BaseLayer>
             )}
           </LayersControl>
-
           <FlyTo view={view} />
           <LayerSwitcher activeLayer={activeLayer} />
+          {view?.center[0] && view?.center[1] && (
+              <Marker
+                  position={[view?.center[0], view?.center[1]]}
+                  icon={actualIcon}
+              />)}
         </MapContainer>
 
         {/* Unlock-Buttons */}
