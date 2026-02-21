@@ -4,6 +4,7 @@ import React, {
   useState,
   ReactNode,
   useMemo,
+  useCallback,
 } from "react";
 
 type UnlockedLayers = {
@@ -14,6 +15,7 @@ type UnlockedLayers = {
 
 interface ScoreContextType {
   score: number;
+  addPoints: (amount: number) => void;
   deductPoints: (amount: number) => boolean;
   resetScore: () => void;
   canAfford: (amount: number) => boolean;
@@ -36,37 +38,49 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
   const [unlockedLayers, setUnlockedLayers] =
     useState<UnlockedLayers>(INITIAL_UNLOCKED);
 
-  const deductPoints = (amount: number): boolean => {
-    if (score >= amount) {
-      setScore((prev) => prev - amount);
-      return true;
-    }
-    return false;
-  };
+  const addPoints = useCallback((amount: number): void => {
+    setScore((prev) => prev + amount);
+  }, []);
 
-  const resetScore = () => {
+  const deductPoints = useCallback(
+    (amount: number): boolean => {
+      if (score >= amount) {
+        setScore((prev) => prev - amount);
+        return true;
+      }
+      return false;
+    },
+    [score],
+  );
+
+  const resetScore = useCallback(() => {
     setScore(INITIAL_SCORE);
-  };
+  }, []);
 
-  const canAfford = (amount: number): boolean => {
-    return score >= amount;
-  };
+  const canAfford = useCallback(
+    (amount: number): boolean => {
+      return score >= amount;
+    },
+    [score],
+  );
 
-  const unlockLayer = (layer: "topo" | "osm"): boolean => {
+  const unlockLayer = useCallback((layer: "topo" | "osm"): boolean => {
+    console.log("🔓 Unlocking layer:", layer);
     setUnlockedLayers((prev) => ({
       ...prev,
       [layer]: true,
     }));
     return true;
-  };
+  }, []);
 
-  const resetLayers = () => {
+  const resetLayers = useCallback(() => {
     setUnlockedLayers(INITIAL_UNLOCKED);
-  };
+  }, []);
 
   const contextValue = useMemo(
     () => ({
       score,
+      addPoints,
       deductPoints,
       resetScore,
       canAfford,
@@ -77,6 +91,7 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
     [
       score,
       unlockedLayers,
+      addPoints,
       deductPoints,
       resetScore,
       canAfford,

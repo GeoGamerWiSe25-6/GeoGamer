@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, LayersControl, useMap } from "react-leaflet";
 import { useScore } from "../../context/ScoreContext";
-
+import { UnlockDialog } from "../Game/UnlockDialog";
+import { UNLOCK_COSTS } from "../../constants/config";
 import "./PuzzleMap.css";
 
 const { BaseLayer } = LayersControl;
@@ -11,11 +12,7 @@ interface MapView {
   zoom: number;
 }
 
-interface FlyToProps {
-  view: MapView | null;
-}
-
-function FlyTo({ view }: FlyToProps) {
+function FlyTo({ view }: { view: MapView | null }) {
   const map = useMap();
 
   useEffect(() => {
@@ -25,78 +22,199 @@ function FlyTo({ view }: FlyToProps) {
       lng: view.center[1],
       zoom: view.zoom,
     });
-
     map.setView(view.center, view.zoom);
   }, [view, map]);
 
   return null;
 }
 
-interface PuzzleMapProps {
-  view: MapView | null;
+function LayerSwitcher({
+  activeLayer,
+}: {
+  activeLayer: "satellite" | "topo" | "osm";
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    // Leaflet's Layer Control triggern
+    const layersControl = (map as any)._layers;
+
+    console.log("🔄 Switching to layer:", activeLayer);
+
+    // Layer Control neu rendern erzwingen
+    map.eachLayer((layer) => {
+      if (
+        (layer as any).options?.attribution?.includes("MapTiler") &&
+        activeLayer !== "satellite"
+      ) {
+        map.removeLayer(layer);
+      }
+      if (
+        (layer as any).options?.attribution?.includes("BKG") &&
+        activeLayer !== "topo"
+      ) {
+        map.removeLayer(layer);
+      }
+      if (
+        (layer as any).options?.attribution?.includes(
+          "OpenStreetMap contributors",
+        ) &&
+        activeLayer !== "osm"
+      ) {
+        map.removeLayer(layer);
+      }
+    });
+  }, [map, activeLayer]);
+
+  return null;
 }
 
-export function PuzzleMap({ view }: PuzzleMapProps) {
+interface PuzzleMapProps {
+  view: MapView | null;
+  roundReset?: number;
+}
+
+export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
   const maptilerKey = import.meta.env.VITE_MAPTILER_KEY || "";
-  const { unlockedLayers } = useScore();
+
+  const { score, unlockedLayers, deductPoints, unlockLayer } = useScore();
+
+  const [showUnlockDialog, setShowUnlockDialog] = useState<
+    "topo" | "osm" | null
+  >(null);
+
+  const [activeLayer, setActiveLayer] = useState<"satellite" | "topo" | "osm">(
+    "satellite",
+  );
+
+  useEffect(() => {
+    setActiveLayer("satellite");
+  }, [roundReset]);
+
+  useEffect(() => {
+    if (!unlockedLayers.topo && !unlockedLayers.osm) {
+      setActiveLayer("satellite");
+    }
+  }, [unlockedLayers.topo, unlockedLayers.osm]);
+
+  const handleUnlockClick = (layer: "topo" | "osm") => {
+    if (layer === "osm" && !unlockedLayers.topo) {
+      alert("⚠️ Du musst zuerst die Topographie-Karte freischalten!");
+      return;
+    }
+    setShowUnlockDialog(layer);
+  };
+
+  const handleConfirmUnlock = () => {
+    if (!showUnlockDialog) return;
+
+    const cost = UNLOCK_COSTS[showUnlockDialog];
+    const success = deductPoints(cost);
+
+    if (success) {
+      unlockLayer(showUnlockDialog);
+      setActiveLayer(showUnlockDialog); // ⭐ NEU: Automatisch zu neuem Layer wechseln
+      setShowUnlockDialog(null);
+    }
+  };
 
   return (
-    <MapContainer
-      center={[51.1657, 10.4515]}
-      zoom={6}
-      style={{ height: "100%", width: "100%" }}
-      scrollWheelZoom={true}
-      doubleClickZoom={false}
-    >
-      <LayersControl position="topleft">
-        {/*In Endversion Standard (Api key Aufrufe sparen) Nur anzeigen wenn API-Key vorhanden */}
-        {maptilerKey && (
-          <BaseLayer checked name=" 🛰️Satellite">
-            <TileLayer
-              url={`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${maptilerKey}`}
-              attribution="© MapTiler © OpenStreetMap contributors"
-              maxZoom={20}
-            />
-          </BaseLayer>
-        )}
+    <>
+      <div className="puzzle-map-container">
+        <MapContainer
+          key={`map-${activeLayer}-${roundReset}`}
+          center={[51.1657, 10.4515]}
+          zoom={6}
+          style={{ height: "100%", width: "100%" }}
+          scrollWheelZoom={true}
+          doubleClickZoom={false}
+        >
+          <LayersControl position="topleft">
+            {/* Satellit - IMMER verfügbar */}
+            <BaseLayer
+              checked={activeLayer === "satellite"}
+              name="🛰️ Satellite"
+            >
+              <TileLayer
+                url={`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.jpg?key=${maptilerKey}`}
+                attribution="© MapTiler © OpenStreetMap contributors"
+                maxZoom={20}
+              />
+            </BaseLayer>
 
-        {/* Topo - Nur wenn freigeschaltet */}
-        {unlockedLayers.topo ? (
-          <BaseLayer name="🗻 Topographie">
-            <TileLayer
-              url="https://sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web/default/WEBMERCATOR/{z}/{y}/{x}.png"
-              attribution="© OpenStreetMap © CARTO"
-              maxZoom={18}
-            />
-          </BaseLayer>
-        ) : (
-          <BaseLayer name="🔒 Topographie (gesperrt)">
-            <TileLayer
-              url="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-              attribution="🔒 Locked"
-            />
-          </BaseLayer>
-        )}
+            {/* Topo - Nur wenn freigeschaltet */}
+            {unlockedLayers.topo && (
+              <BaseLayer checked={activeLayer === "topo"} name="🗻 Topographie">
+                <TileLayer
+                  url="https://sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web/default/WEBMERCATOR/{z}/{y}/{x}.png"
+                  attribution="© BKG"
+                  maxZoom={18}
+                />
+              </BaseLayer>
+            )}
 
-        {unlockedLayers.osm ? (
-          <BaseLayer name="🗺️ OSM">
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution="© OpenStreetMap contributors"
-              maxZoom={19}
-            />
-          </BaseLayer>
-        ) : (
-          <BaseLayer name="🔒 OSM (gesperrt)">
-            <TileLayer
-              url="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-              attribution="🔒 Locked"
-            />
-          </BaseLayer>
-        )}
-      </LayersControl>
+            {/* OSM - Nur wenn freigeschaltet */}
+            {unlockedLayers.osm && (
+              <BaseLayer checked={activeLayer === "osm"} name="🗺️ OSM">
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution="© OpenStreetMap contributors"
+                  maxZoom={19}
+                />
+              </BaseLayer>
+            )}
+          </LayersControl>
 
-      <FlyTo view={view} />
-    </MapContainer>
+          <FlyTo view={view} />
+          <LayerSwitcher activeLayer={activeLayer} />
+        </MapContainer>
+
+        {/* Unlock-Buttons */}
+        <div className="unlock-buttons">
+          {!unlockedLayers.topo && (
+            <button
+              className="unlock-button unlock-topo"
+              onClick={() => handleUnlockClick("topo")}
+              title={`Topographie freischalten (-${UNLOCK_COSTS.topo} Punkte)`}
+            >
+              <span className="unlock-icon">🔒</span>
+              <span className="unlock-text">
+                <div className="unlock-name">Topo</div>
+                <div className="unlock-price">-{UNLOCK_COSTS.topo}</div>
+              </span>
+            </button>
+          )}
+
+          {!unlockedLayers.osm && (
+            <button
+              className="unlock-button unlock-osm"
+              onClick={() => handleUnlockClick("osm")}
+              disabled={!unlockedLayers.topo}
+              title={
+                unlockedLayers.topo
+                  ? `OSM freischalten (-${UNLOCK_COSTS.osm} Punkte)`
+                  : "Zuerst Topo freischalten!"
+              }
+            >
+              <span className="unlock-icon">🔒</span>
+              <span className="unlock-text">
+                <div className="unlock-name">OSM</div>
+                <div className="unlock-price">-{UNLOCK_COSTS.osm}</div>
+              </span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Unlock-Dialog */}
+      {showUnlockDialog && (
+        <UnlockDialog
+          layer={showUnlockDialog}
+          currentScore={score}
+          onConfirm={handleConfirmUnlock}
+          onCancel={() => setShowUnlockDialog(null)}
+        />
+      )}
+    </>
   );
 }
