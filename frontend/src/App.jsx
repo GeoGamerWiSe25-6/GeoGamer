@@ -8,28 +8,28 @@ import "./App.css";
 
 export default function App() {
   const [roundId, setRoundId] = useState(null);
-
   const [view, setView] = useState(null);
-
   const [guess, setGuess] = useState(null);
-
   const [result, setResult] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
-
   const [error, setError] = useState(null);
 
-  const { resetScore, resetLayers, addPoints } = useScore();
+  const {
+    addPoints,
+    resetLayers,
+    resetGame,
+    currentRound,
+    totalRounds,
+    isGameOver,
+    nextRound,
+    score,
+  } = useScore();
 
-  const loadNewRound = useCallback(async () => {
+  const loadRound = useCallback(async () => {
     setIsLoading(true);
     setGuess(null);
     setResult(null);
     setError(null);
-
-    resetScore();
-    resetLayers();
-
     try {
       const data = await startRound();
       setRoundId(data.roundId);
@@ -40,21 +40,19 @@ export default function App() {
     } finally {
       setIsLoading(false);
     }
-  }, [resetScore, resetLayers]);
+  }, []);
 
   useEffect(() => {
-    loadNewRound();
-  }, [loadNewRound]);
+    loadRound();
+  }, [loadRound]);
 
   async function confirmGuess() {
     if (!roundId || !guess) {
       console.warn("⚠️ Cannot confirm: missing roundId or guess");
       return;
     }
-
     setIsLoading(true);
     setError(null);
-
     try {
       const data = await submitGuess({
         roundId,
@@ -62,7 +60,6 @@ export default function App() {
         guessLon: guess.lon,
       });
       console.log("✅ Result:", data);
-
       setResult(data);
       addPoints(data.score);
     } catch (e) {
@@ -73,6 +70,50 @@ export default function App() {
     }
   }
 
+  function handleNextRound() {
+    nextRound();
+    resetLayers();
+    loadRound();
+  }
+
+  function handleRestartGame() {
+    resetGame();
+    loadRound();
+  }
+
+  // ─── Game Over Screen ───────────────────────────────────────────────────────
+  if (isGameOver) {
+    const getRank = (s) => {
+      if (s >= 3500) return { emoji: "🥇", label: "Geographie-Meister" };
+      if (s >= 2500) return { emoji: "🥈", label: "Kartograph" };
+      if (s >= 1500) return { emoji: "🥉", label: "Orientierungsläufer" };
+      return { emoji: "🗺️", label: "" };
+    };
+    const rank = getRank(score);
+
+    return (
+      <div className="gameover-screen">
+        <div className="gameover-card">
+          <div className="gameover-emoji">{rank.emoji}</div>
+          <h1 className="gameover-title">Spiel beendet!</h1>
+          <p className="gameover-rank">{rank.label}</p>
+          <div className="gameover-score">
+            <span className="gameover-score-label">Finalscore</span>
+            <span className="gameover-score-value">{score}</span>
+            <span className="gameover-score-unit">Punkte</span>
+          </div>
+          <button
+            className="btn-primary gameover-btn"
+            onClick={handleRestartGame}
+          >
+            🔄 Nochmal spielen
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Hauptspiel ─────────────────────────────────────────────────────────────
   return (
     <div className="app-container">
       {error && (
@@ -87,13 +128,17 @@ export default function App() {
         <div className="map-panel">
           <header className="panel-header">
             <h3>🗺️ Puzzle Map</h3>
+            <div className="round-indicator">
+              Runde <strong>{currentRound}</strong> / {totalRounds}
+            </div>
             <ScoreDisplay />
             <button
-              className="btn-primary"
-              onClick={loadNewRound}
+              className="btn-restart"
+              onClick={handleRestartGame}
               disabled={isLoading}
+              title="Spiel neu starten"
             >
-              {isLoading ? "Lädt..." : "🔄 Neue Runde"}
+              Neu starten
             </button>
           </header>
 
@@ -132,7 +177,7 @@ export default function App() {
             </div>
           </header>
 
-          {/* Panel */}
+          {/* Ergebnis-Panel */}
           {result && (
             <div className="result-panel">
               <div className="result-item">
@@ -148,8 +193,19 @@ export default function App() {
                 </span>
               </div>
               <div className="result-item score">
-                <strong>⭐ Score:</strong> {result.score}
+                <strong>⭐ Verdient:</strong> +{result.score} Punkte
               </div>
+
+              {/* Nächste Runde */}
+              <button
+                className="btn-primary next-round-btn"
+                onClick={handleNextRound}
+                disabled={isLoading}
+              >
+                {currentRound < totalRounds
+                  ? `▶ Runde ${currentRound + 1} starten`
+                  : "🏁 Ergebnis anzeigen"}
+              </button>
             </div>
           )}
 
