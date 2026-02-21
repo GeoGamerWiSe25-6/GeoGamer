@@ -81,7 +81,7 @@ function FlyToResult({
     if (!target) return;
 
     console.log("FlyToResult target changed:", target);
-    map.setView([target.lat, target.lon], 6, { animate: true });
+    map.setView([target.lat-0.08, target.lon], 10, { animate: true });
   }, [map, target?.lat, target?.lon]);
 
   return null;

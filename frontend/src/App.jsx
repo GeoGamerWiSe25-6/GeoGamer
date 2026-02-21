@@ -67,7 +67,7 @@ export default function App() {
       addPoints(data.score);
     } catch (e) {
       console.error("Failed to submit guess:", e);
-      setError("Fehler beim Absenden. Bitte erneut versuchen.");
+      setError(e.message);
     } finally {
       setIsLoading(false);
     }
