@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import {
   MapContainer,
   TileLayer,
@@ -60,25 +60,23 @@ function LayerSwitcher({
 
     // Layer Control neu rendern erzwingen
     map.eachLayer((layer) => {
-      if (
-        (layer as any).options?.attribution?.includes("MapTiler") &&
-        activeLayer !== "satellite"
-      ) {
-        map.removeLayer(layer);
-      }
-      if (
-        (layer as any).options?.attribution?.includes("BKG") &&
-        activeLayer !== "topo"
-      ) {
-        map.removeLayer(layer);
-      }
-      if (
-        (layer as any).options?.attribution?.includes(
-          "OpenStreetMap contributors",
-        ) &&
-        activeLayer !== "osm"
-      ) {
-        map.removeLayer(layer);
+      const attr = (layer as any).options?.attribution || "";
+
+      if (attr.includes("MapTiler")) {
+        // Satellite
+        if (activeLayer !== "satellite") {
+          map.removeLayer(layer);
+        }
+      } else if (attr.includes("BKG")) {
+        // Topo
+        if (activeLayer !== "topo") {
+          map.removeLayer(layer);
+        }
+      } else if (attr.includes("OpenStreetMap contributors")) {
+        // Reines OSM (ohne MapTiler)
+        if (activeLayer !== "osm") {
+          map.removeLayer(layer);
+        }
       }
     });
   }, [map, activeLayer]);
@@ -135,11 +133,59 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
     }
   };
 
+  function ForceSatelliteOnStart({
+                                   onForceSatellite,
+                                 }: {
+    onForceSatellite: () => void;
+  }) {
+    const map = useMap();
+    const ranOnceRef = useRef(false);
+
+    useEffect(() => {
+      if (ranOnceRef.current) return;
+      ranOnceRef.current = true;
+
+      // Alle bekannten Base-Layer entfernen (Topo + OSM)
+      map.eachLayer((layer: any) => {
+        if (!(layer instanceof L.TileLayer)) return;
+
+        const attr = layer.options.attribution || "";
+
+        const isTopo = attr.includes("BKG");
+        const isOSMOnly =
+            attr.includes("OpenStreetMap contributors") && !attr.includes("MapTiler");
+
+        if (isTopo || isOSMOnly) {
+          map.removeLayer(layer);
+        }
+      });
+
+      // Satellite-Layer sicherstellen
+      map.eachLayer((layer: any) => {
+        if (!(layer instanceof L.TileLayer)) return;
+
+        const attr = layer.options.attribution || "";
+        const isSatellite = attr.includes("MapTiler");
+
+        if (isSatellite && !map.hasLayer(layer)) {
+          map.addLayer(layer);
+        }
+      });
+
+      // React-State nachziehen
+      onForceSatellite();
+    }, [map, onForceSatellite]);
+
+    return null;
+  }
+
+
+
   return (
     <>
       <div className="puzzle-map-container">
         <MapContainer
-          key={`map-${activeLayer}-${roundReset}`}
+          key={`map-${roundReset}`}
           center={[51.1657, 10.4515]}
           zoom={6}
           style={{ height: "100%", width: "100%" }}
@@ -181,6 +227,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
               </BaseLayer>
             )}
           </LayersControl>
+          <ForceSatelliteOnStart onForceSatellite={() => setActiveLayer("satellite")} />
           <FlyTo view={view} />
           <LayerSwitcher activeLayer={activeLayer} />
           {view?.center[0] && view?.center[1] && (
@@ -240,3 +287,4 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
     </>
   );
 }
+
