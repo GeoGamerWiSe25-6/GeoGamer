@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import {
-  MapContainer,
-  TileLayer,
   LayersControl,
-  useMap,
+  MapContainer,
   Marker,
+  TileLayer,
+  useMap,
 } from "react-leaflet";
 import { useScore } from "../../context/ScoreContext";
 import { UnlockDialog } from "../Game/UnlockDialog";
@@ -60,25 +60,23 @@ function LayerSwitcher({
 
     // Layer Control neu rendern erzwingen
     map.eachLayer((layer) => {
-      if (
-        (layer as any).options?.attribution?.includes("MapTiler") &&
-        activeLayer !== "satellite"
-      ) {
-        map.removeLayer(layer);
-      }
-      if (
-        (layer as any).options?.attribution?.includes("BKG") &&
-        activeLayer !== "topo"
-      ) {
-        map.removeLayer(layer);
-      }
-      if (
-        (layer as any).options?.attribution?.includes(
-          "OpenStreetMap contributors",
-        ) &&
-        activeLayer !== "osm"
-      ) {
-        map.removeLayer(layer);
+      const attr = (layer as any).options?.attribution || "";
+
+      if (attr.includes("MapTiler")) {
+        // Satellite
+        if (activeLayer !== "satellite") {
+          map.removeLayer(layer);
+        }
+      } else if (attr.includes("BKG")) {
+        // Topo
+        if (activeLayer !== "topo") {
+          map.removeLayer(layer);
+        }
+      } else if (attr.includes("OpenStreetMap contributors")) {
+        // Reines OSM (ohne MapTiler)
+        if (activeLayer !== "osm") {
+          map.removeLayer(layer);
+        }
       }
     });
   }, [map, activeLayer]);
@@ -104,16 +102,6 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
     "satellite",
   );
 
-  useEffect(() => {
-    setActiveLayer("satellite");
-  }, [roundReset]);
-
-  useEffect(() => {
-    if (!unlockedLayers.topo && !unlockedLayers.osm) {
-      setActiveLayer("satellite");
-    }
-  }, [unlockedLayers.topo, unlockedLayers.osm]);
-
   const handleUnlockClick = (layer: "topo" | "osm") => {
     if (layer === "osm" && !unlockedLayers.topo) {
       alert("⚠️ Du musst zuerst die Topographie-Karte freischalten!");
@@ -135,11 +123,16 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
     }
   };
 
+  useEffect(() => {
+    // Bei jeder neuen Runde: wieder Satellite als aktiven Layer
+    setActiveLayer("satellite");
+  }, [roundReset]);
+
   return (
     <>
       <div className="puzzle-map-container">
         <MapContainer
-          key={`map-${activeLayer}-${roundReset}`}
+          key={`map-${roundReset}`}
           center={[51.1657, 10.4515]}
           zoom={6}
           style={{ height: "100%", width: "100%" }}
