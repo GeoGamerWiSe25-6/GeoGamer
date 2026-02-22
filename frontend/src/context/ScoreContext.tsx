@@ -1,10 +1,10 @@
-import React, {
+import {
   createContext,
-  useContext,
-  useState,
   ReactNode,
-  useMemo,
   useCallback,
+  useContext,
+  useMemo,
+  useState,
 } from "react";
 
 type UnlockedLayers = {
@@ -40,7 +40,6 @@ interface ScoreContextType {
 const ScoreContext = createContext<ScoreContextType | undefined>(undefined);
 
 const INITIAL_SCORE = 1000;
-const TOTAL_ROUNDS = 3;
 const ZOOM_PENALTY = 25;
 
 const INITIAL_UNLOCKED: UnlockedLayers = {
@@ -95,16 +94,12 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  // kein Gameover
   const nextRound = useCallback(() => {
-    if (currentRound >= TOTAL_ROUNDS) {
-      setIsGameOver(true);
-    } else {
-      setCurrentRound((prev) => prev + 1);
-      // Score bleibt! Nur Layer und Zoom-Strafen zurücksetzen
-      setUnlockedLayers(INITIAL_UNLOCKED);
-      setPenalizedZoomLevels(new Set());
-    }
-  }, [currentRound]);
+    setCurrentRound((prev) => prev + 1);
+    setUnlockedLayers(INITIAL_UNLOCKED);
+    setPenalizedZoomLevels(new Set());
+  }, []);
 
   const resetGame = useCallback(() => {
     setScore(INITIAL_SCORE);
@@ -132,7 +127,7 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
       resetScore,
       canAfford,
       currentRound,
-      totalRounds: TOTAL_ROUNDS,
+      totalRounds: Infinity, // oder null/undefined und im UI speziell behandeln
       isGameOver,
       nextRound,
       resetGame,

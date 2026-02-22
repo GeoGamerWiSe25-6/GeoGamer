@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PuzzleMap } from "./components/Map/PuzzleMap";
 import { GuessMap } from "./components/Map/GuessMap";
 import { startRound, submitGuess } from "./services/gameApi";
@@ -129,7 +129,7 @@ export default function App() {
           <header className="panel-header">
             <h3>🗺️ Puzzle Map</h3>
             <div className="round-indicator">
-              Runde <strong>{currentRound}</strong> / {totalRounds}
+              Runde <strong>{currentRound}</strong>
             </div>
             <ScoreDisplay />
             <button
@@ -202,9 +202,9 @@ export default function App() {
                 onClick={handleNextRound}
                 disabled={isLoading}
               >
-                {currentRound < totalRounds
-                  ? `▶ Runde ${currentRound + 1} starten`
-                  : "🏁 Ergebnis anzeigen"}
+                {result
+                  ? `Nächste Runde (${currentRound + 1}) starten`
+                  : "Ergebnis anzeigen"}
               </button>
             </div>
           )}
