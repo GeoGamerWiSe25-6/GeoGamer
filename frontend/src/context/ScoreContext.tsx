@@ -120,6 +120,10 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
     setUnlockedLayers(INITIAL_UNLOCKED);
   }, []);
 
+  const endGame = useCallback(() => {
+    setIsGameOver(true);
+  }, []);
+
   const contextValue = useMemo(
     () => ({
       score,
@@ -132,6 +136,7 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
       isGameOver,
       nextRound,
       resetGame,
+      endGame,
       registerZoomIn,
       zoomPenalty: ZOOM_PENALTY,
       unlockedLayers,
@@ -148,6 +153,7 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
       isGameOver,
       nextRound,
       resetGame,
+      endGame,
       registerZoomIn,
       unlockedLayers,
       unlockLayer,

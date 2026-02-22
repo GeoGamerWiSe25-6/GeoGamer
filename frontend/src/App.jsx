@@ -23,7 +23,12 @@ export default function App() {
     isGameOver,
     nextRound,
     score,
+    endGame,
   } = useScore();
+
+  function handleEndGame() {
+    endGame();
+  }
 
   const loadRound = useCallback(async () => {
     setIsLoading(true);
@@ -84,9 +89,11 @@ export default function App() {
   // ─── Game Over Screen ───────────────────────────────────────────────────────
   if (isGameOver) {
     const getRank = (s) => {
-      if (s >= 3500) return { emoji: "🥇", label: "Geographie-Meister" };
-      if (s >= 2500) return { emoji: "🥈", label: "Kartograph" };
-      if (s >= 1500) return { emoji: "🥉", label: "Orientierungsläufer" };
+      if (s / currentRound >= 700)
+        return { emoji: "🥇", label: "Geographie-Meister" };
+      if (s / currentRound >= 500) return { emoji: "🥈", label: "Kartograph" };
+      if (s / currentRound >= 100)
+        return { emoji: "🥉", label: "Orientierungsläufer" };
       return { emoji: "🗺️", label: "" };
     };
     const rank = getRank(score);
@@ -133,12 +140,20 @@ export default function App() {
             </div>
             <ScoreDisplay />
             <button
+              className="btn-secondary"
+              onClick={handleEndGame}
+              disabled={isLoading}
+              title="Spiel freiwillig beenden"
+            >
+              EXIT
+            </button>
+            <button
               className="btn-restart"
               onClick={handleRestartGame}
               disabled={isLoading}
               title="Spiel neu starten"
             >
-              Neu starten
+              Neustart
             </button>
           </header>
 
