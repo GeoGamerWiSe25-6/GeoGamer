@@ -57,7 +57,8 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
   const [penalizedZoomLevels, setPenalizedZoomLevels] = useState<Set<number>>(
     new Set(),
   );
-
+  // compiler beschwert sich sonst weil penalizedZoomLevels nicht explizit aufgerufen wird
+  console.log(penalizedZoomLevels.size);
   const addPoints = useCallback((amount: number): void => {
     setScore((prev) => prev + amount);
   }, []);

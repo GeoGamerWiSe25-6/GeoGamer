@@ -19,7 +19,7 @@ export default function App() {
     resetLayers,
     resetGame,
     currentRound,
-    totalRounds,
+    _,
     isGameOver,
     nextRound,
     score,
