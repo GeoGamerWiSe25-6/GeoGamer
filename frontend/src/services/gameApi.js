@@ -1,23 +1,3 @@
-/** 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
-
-export async function startRound() {
-  const res = await fetch(`${API_BASE}/api/start`);
-  if (!res.ok) throw new Error("Failed to start round");
-  return res.json();
-}
-
-export async function submitGuess({ roundId, guessLat, guessLon }) {
-  const res = await fetch(`${API_BASE}/api/guess`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ roundId, guessLat, guessLon }),
-  });
-  if (!res.ok) throw new Error("Failed to submit guess");
-  return res.json();
-}
-  */
-
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
 
 class APIError extends Error {

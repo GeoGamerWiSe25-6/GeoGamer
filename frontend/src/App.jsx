@@ -19,7 +19,6 @@ export default function App() {
     resetLayers,
     resetGame,
     currentRound,
-    _,
     isGameOver,
     nextRound,
     score,
@@ -226,6 +225,7 @@ export default function App() {
 
           <div className={`map-wrapper ${result ? "with-result" : ""}`}>
             <GuessMap
+              key={roundId}
               guess={guess}
               onChange={setGuess}
               result={result}
