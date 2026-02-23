@@ -1,10 +1,10 @@
-import React, {
+import {
   createContext,
-  useContext,
-  useState,
   ReactNode,
-  useMemo,
   useCallback,
+  useContext,
+  useMemo,
+  useState,
 } from "react";
 
 type UnlockedLayers = {
@@ -20,13 +20,28 @@ interface ScoreContextType {
   resetScore: () => void;
   canAfford: (amount: number) => boolean;
 
+  // Runden
+  currentRound: number;
+  totalRounds: number;
+  isGameOver: boolean;
+  nextRound: () => void;
+  resetGame: () => void;
+
+  // Zoom-Penalty
+  registerZoomIn: (zoomLevel: number) => void;
+  zoomPenalty: number;
+
+  // Layer
   unlockedLayers: UnlockedLayers;
   unlockLayer: (layer: "topo" | "osm") => boolean;
   resetLayers: () => void;
 }
+
 const ScoreContext = createContext<ScoreContextType | undefined>(undefined);
 
 const INITIAL_SCORE = 1000;
+const ZOOM_PENALTY = 25;
+
 const INITIAL_UNLOCKED: UnlockedLayers = {
   satellite: true,
   topo: false,
@@ -35,9 +50,15 @@ const INITIAL_UNLOCKED: UnlockedLayers = {
 
 export function ScoreProvider({ children }: { children: ReactNode }) {
   const [score, setScore] = useState(INITIAL_SCORE);
+  const [currentRound, setCurrentRound] = useState(1);
+  const [isGameOver, setIsGameOver] = useState(false);
   const [unlockedLayers, setUnlockedLayers] =
     useState<UnlockedLayers>(INITIAL_UNLOCKED);
-
+  const [penalizedZoomLevels, setPenalizedZoomLevels] = useState<Set<number>>(
+    new Set(),
+  );
+  // compiler beschwert sich sonst weil penalizedZoomLevels nicht explizit aufgerufen wird
+  console.log(penalizedZoomLevels.size);
   const addPoints = useCallback((amount: number): void => {
     setScore((prev) => prev + amount);
   }, []);
@@ -58,23 +79,49 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const canAfford = useCallback(
-    (amount: number): boolean => {
-      return score >= amount;
-    },
+    (amount: number): boolean => score >= amount,
     [score],
   );
 
+  // Zoom-Penalty: jedes neue Zoom-Level ab 3 kostet einmalig 25 Punkte pro Runde
+  const registerZoomIn = useCallback((zoomLevel: number): void => {
+    if (zoomLevel < 3) return;
+    setPenalizedZoomLevels((prev) => {
+      if (prev.has(zoomLevel)) return prev;
+      setScore((s) => Math.max(0, s - ZOOM_PENALTY));
+      const next = new Set(prev);
+      next.add(zoomLevel);
+      return next;
+    });
+  }, []);
+
+  // kein Gameover
+  const nextRound = useCallback(() => {
+    setCurrentRound((prev) => prev + 1);
+    setUnlockedLayers(INITIAL_UNLOCKED);
+    setPenalizedZoomLevels(new Set());
+  }, []);
+
+  const resetGame = useCallback(() => {
+    setScore(INITIAL_SCORE);
+    setCurrentRound(1);
+    setIsGameOver(false);
+    setUnlockedLayers(INITIAL_UNLOCKED);
+    setPenalizedZoomLevels(new Set());
+  }, []);
+
   const unlockLayer = useCallback((layer: "topo" | "osm"): boolean => {
     console.log("🔓 Unlocking layer:", layer);
-    setUnlockedLayers((prev) => ({
-      ...prev,
-      [layer]: true,
-    }));
+    setUnlockedLayers((prev) => ({ ...prev, [layer]: true }));
     return true;
   }, []);
 
   const resetLayers = useCallback(() => {
     setUnlockedLayers(INITIAL_UNLOCKED);
+  }, []);
+
+  const endGame = useCallback(() => {
+    setIsGameOver(true);
   }, []);
 
   const contextValue = useMemo(
@@ -84,17 +131,31 @@ export function ScoreProvider({ children }: { children: ReactNode }) {
       deductPoints,
       resetScore,
       canAfford,
+      currentRound,
+      totalRounds: Infinity, // oder null/undefined und im UI speziell behandeln
+      isGameOver,
+      nextRound,
+      resetGame,
+      endGame,
+      registerZoomIn,
+      zoomPenalty: ZOOM_PENALTY,
       unlockedLayers,
       unlockLayer,
       resetLayers,
     }),
     [
       score,
-      unlockedLayers,
       addPoints,
       deductPoints,
       resetScore,
       canAfford,
+      currentRound,
+      isGameOver,
+      nextRound,
+      resetGame,
+      endGame,
+      registerZoomIn,
+      unlockedLayers,
       unlockLayer,
       resetLayers,
     ],

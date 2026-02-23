@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-  LayersControl,
   MapContainer,
+  LayersControl,
   Marker,
   TileLayer,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import { useScore } from "../../context/ScoreContext";
 import { UnlockDialog } from "../Game/UnlockDialog";
@@ -53,33 +54,52 @@ function LayerSwitcher({
   const map = useMap();
 
   useEffect(() => {
-    // Leaflet's Layer Control triggern
-    //const layersControl = (map as any)._layers;
-
     console.log("🔄 Switching to layer:", activeLayer);
-
-    // Layer Control neu rendern erzwingen
     map.eachLayer((layer) => {
       const attr = (layer as any).options?.attribution || "";
 
       if (attr.includes("MapTiler")) {
-        // Satellite
-        if (activeLayer !== "satellite") {
-          map.removeLayer(layer);
-        }
+        if (activeLayer !== "satellite") map.removeLayer(layer);
       } else if (attr.includes("BKG")) {
-        // Topo
-        if (activeLayer !== "topo") {
-          map.removeLayer(layer);
-        }
+        if (activeLayer !== "topo") map.removeLayer(layer);
       } else if (attr.includes("OpenStreetMap contributors")) {
-        // Reines OSM (ohne MapTiler)
-        if (activeLayer !== "osm") {
-          map.removeLayer(layer);
-        }
+        if (activeLayer !== "osm") map.removeLayer(layer);
       }
     });
   }, [map, activeLayer]);
+
+  return null;
+}
+
+// Trackt Zoom-Änderungen und meldet Einzoomen an ScoreContext
+function ZoomTracker({ onZoomIn }: { onZoomIn: (zoomLevel: number) => void }) {
+  useMapEvents({
+    zoomend(e) {
+      const currentZoom = e.target.getZoom();
+      onZoomIn(currentZoom);
+    },
+  });
+  return null;
+}
+
+// Sperrt/Entsperrt Zoom reaktiv basierend auf Score
+function ZoomLockController({ locked }: { locked: boolean }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (locked) {
+      map.scrollWheelZoom.disable();
+      map.touchZoom.disable();
+      map.doubleClickZoom.disable();
+      map.boxZoom.disable();
+      map.keyboard.disable();
+    } else {
+      map.scrollWheelZoom.enable();
+      map.touchZoom.enable();
+      map.boxZoom.enable();
+      map.keyboard.enable();
+    }
+  }, [locked, map]);
 
   return null;
 }
@@ -92,7 +112,16 @@ interface PuzzleMapProps {
 export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
   const maptilerKey = import.meta.env.VITE_MAPTILER_KEY || "";
 
-  const { score, unlockedLayers, deductPoints, unlockLayer } = useScore();
+  const {
+    score,
+    unlockedLayers,
+    deductPoints,
+    unlockLayer,
+    registerZoomIn,
+    zoomPenalty,
+  } = useScore();
+
+  const zoomLocked = score <= 0;
 
   const [showUnlockDialog, setShowUnlockDialog] = useState<
     "topo" | "osm" | null
@@ -101,6 +130,26 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
   const [activeLayer, setActiveLayer] = useState<"satellite" | "topo" | "osm">(
     "satellite",
   );
+
+  const [showPenaltyToast, setShowPenaltyToast] = useState(false);
+
+  // Bei jeder neuen Runde: wieder Satellite als aktiven Layer
+  useEffect(() => {
+    setActiveLayer("satellite");
+  }, [roundReset]);
+
+  useEffect(() => {
+    if (!unlockedLayers.topo && !unlockedLayers.osm) {
+      setActiveLayer("satellite");
+    }
+  }, [unlockedLayers.topo, unlockedLayers.osm]);
+
+  const handleZoomIn = (zoomLevel: number) => {
+    if (zoomLevel < 3) return;
+    registerZoomIn(zoomLevel);
+    setShowPenaltyToast(true);
+    setTimeout(() => setShowPenaltyToast(false), 1500);
+  };
 
   const handleUnlockClick = (layer: "topo" | "osm") => {
     if (layer === "osm" && !unlockedLayers.topo) {
@@ -112,21 +161,14 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
 
   const handleConfirmUnlock = () => {
     if (!showUnlockDialog) return;
-
     const cost = UNLOCK_COSTS[showUnlockDialog];
     const success = deductPoints(cost);
-
     if (success) {
       unlockLayer(showUnlockDialog);
       setActiveLayer(showUnlockDialog);
       setShowUnlockDialog(null);
     }
   };
-
-  useEffect(() => {
-    // Bei jeder neuen Runde: wieder Satellite als aktiven Layer
-    setActiveLayer("satellite");
-  }, [roundReset]);
 
   return (
     <>
@@ -140,7 +182,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
           doubleClickZoom={false}
         >
           <LayersControl position="topleft">
-            {/* Satellit - IMMER verfügbar */}
+            {/* Satellit */}
             <BaseLayer
               checked={activeLayer === "satellite"}
               name="🛰️ Satellite"
@@ -174,15 +216,33 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
               </BaseLayer>
             )}
           </LayersControl>
+
           <FlyTo view={view} />
           <LayerSwitcher activeLayer={activeLayer} />
+          <ZoomLockController locked={zoomLocked} />
+          {!zoomLocked && <ZoomTracker onZoomIn={handleZoomIn} />}
+
           {view?.center[0] && view?.center[1] && (
             <Marker
-              position={[view?.center[0], view?.center[1]]}
+              position={[view.center[0], view.center[1]]}
               icon={actualIcon}
             />
           )}
         </MapContainer>
+
+        {/* Zoom gesperrt Banner */}
+        {zoomLocked && (
+          <div className="zoom-locked-banner">
+            🔒 Kein Zoom mehr — du hast keine Punkte!
+          </div>
+        )}
+
+        {/* Zoom-Penalty Toast */}
+        {showPenaltyToast && (
+          <div className="zoom-penalty-toast">
+            🔍 Eingezoomt — <strong>-{zoomPenalty} Punkte</strong>
+          </div>
+        )}
 
         {/* Unlock-Buttons */}
         <div className="unlock-buttons">
