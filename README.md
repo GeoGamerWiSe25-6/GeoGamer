@@ -30,6 +30,16 @@ cd geogamer
   # MapTiler API-Key befindet sich in Dokumentation unter Implementierung > 5.3 Frontend > 5.3.1 Komponentenstruktur > PuzzleMap.tsx
 docker compose up -d --build
 ```
+### Applikation beenden
+```bash
+docker compose down
+
+# Nach Veränderungen im Code oder Konfiguration ggf:
+docker compose down -v
+# Beim nächsten Start:
+docker compose up -d --build
+```
+
 Frontend: http://localhost:5173
 
 Backend: http://localhost:3000
