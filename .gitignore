@@ -17,6 +17,3 @@ Thumbs.db
 
 postgres_data/
 pgadmin_data/
-
-geoserver/data_dir/security/**
-geoserver/data_dir/workspaces/geogamer/geogamer/datastore.xml
