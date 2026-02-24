@@ -66,6 +66,17 @@ Um die Datenbank in pgAdmin zu browsen sind folgende Schritte notwendig:
 
 <img width="400" height="auto" alt="Verbindungsparameter gemäß .env-Datei eingeben" src="./assets/img.png" />
 
+
+## Troubleshooting
+### Port bereits genutzt
+- Service auf dem Port finden und beenden. Beispiel:
+Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint geogamer-db (84d40***): failed to bind host port 0.0.0.0:5432/tcp: address already in use
+
+```bash
+sudo systemctl stop postgresql
+sudo systemctl disable postgresql
+```
+
 ## Lizenz
 
 Dieses Projekt wurde im Rahmen eines universitären WebGIS-Projekts erstellt.
