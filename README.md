@@ -69,7 +69,7 @@ Um die Datenbank in pgAdmin zu browsen sind folgende Schritte notwendig:
 
 ## Troubleshooting
 ### Port bereits genutzt
-- Service auf dem Port finden und beenden. Beispiel:
+- Service auf dem Port finden und beenden. Beispiel: <br>
 Error response from daemon: failed to set up container networking: driver failed programming external connectivity on endpoint geogamer-db (84d40***): failed to bind host port 0.0.0.0:5432/tcp: address already in use
 
 ```bash
