@@ -6,11 +6,15 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    open: true,
+    host: true,
+    open: false,
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
     proxy: {
-      //  Für Backend
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://backend:3000",
         changeOrigin: true,
       },
     },
