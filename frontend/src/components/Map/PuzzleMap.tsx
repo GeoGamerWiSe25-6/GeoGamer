@@ -104,6 +104,21 @@ function ZoomLockController({ locked }: { locked: boolean }) {
   return null;
 }
 
+// Verhindert Rauszoomen
+function MinZoomEnforcer({ minZoom }: { minZoom: number }) {
+  const map = useMap();
+
+  useMapEvents({
+    zoomend() {
+      if (map.getZoom() < minZoom) {
+        map.setZoom(minZoom, { animate: true });
+      }
+    },
+  });
+
+  return null;
+}
+
 interface PuzzleMapProps {
   view: MapView | null;
   roundReset?: number;
@@ -177,6 +192,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
           key={`map-${roundReset}`}
           center={[51.1657, 10.4515]}
           zoom={6}
+          minZoom={10}
           style={{ height: "100%", width: "100%" }}
           scrollWheelZoom={true}
           doubleClickZoom={false}
@@ -220,6 +236,7 @@ export function PuzzleMap({ view, roundReset }: PuzzleMapProps) {
           <FlyTo view={view} />
           <LayerSwitcher activeLayer={activeLayer} />
           <ZoomLockController locked={zoomLocked} />
+          <MinZoomEnforcer minZoom={10} />
           {!zoomLocked && <ZoomTracker onZoomIn={handleZoomIn} />}
 
           {view?.center[0] && view?.center[1] && (
