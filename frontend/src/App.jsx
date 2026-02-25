@@ -175,7 +175,7 @@ export default function App() {
 
               <button
                 className="btn-danger"
-                disabled={!guess || isLoading}
+                disabled={!guess || isLoading || !!result}
                 onClick={() => setGuess(null)}
               >
                 ✕ Clear
@@ -183,7 +183,7 @@ export default function App() {
 
               <button
                 className="btn-success"
-                disabled={!guess || !roundId || isLoading}
+                disabled={!guess || !roundId || isLoading || !!result}
                 onClick={confirmGuess}
               >
                 ✓ Confirm
